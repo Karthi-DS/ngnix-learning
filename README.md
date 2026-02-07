@@ -1,9 +1,9 @@
 <<<<<<< HEAD
 # ngnix-learning
 =======
-# TechWorld with Nana - Multi-Container Docker Application
+# Multi-Container Docker Application
 
-A multi-container Docker application serving a landing page for TechWorld with Nana educational platform, featuring DevOps, DevSecOps, and software development courses.
+A multi-container Docker application serving a landing page, featuring DevOps, DevSecOps, and software development courses.
 
 ## 🚀 Features
 
