@@ -1,1 +1,50 @@
-docker compose up --build -d
+# directive (key value pair) ex key value;
+# contexts group of related directives that apply to certain part of conf ex contextName{}
+
+worker_processes 1; 
+# controls how many parallel process nginx spawns to handle client requests
+# no of worker_process define how well the nginx perform
+# in general we can give no of cpu cores for worker processes for best performances
+
+events{
+	worker_connections 1024;
+} 
+# how many simultaneous connections can worker processes handle default = 512
+
+http{
+	include mime.types;
+	# mime.types is actually a file, that nginx uses to map file extension to MIME types
+
+
+	upstream nodejs_cluster {
+		least_conn; 
+		# default it uses round robin algorithm but we are changing to least_conn to forward to service that have least request
+		server 127.0.0.1:3001;
+		server 127.0.0.1:3002;
+		server 127.0.0.1:3003;
+	}
+	# upstream block
+	# defines a group of backend servers that will handle requests forwarded by nginx
+	
+	server{
+		# server block
+		# defines how nginx should handle requests for a particular domain or IP address
+		listen 443 ssl; 
+		# where to listen
+		# 443 ssl -- default https port
+		server_name localhost;
+		# where to send
+
+		ssl_certificate /etc/nginx/certs/nginx-selfsigned.crt;
+		ssl_certificate_key /etc/nginx/certs/nginx-selfsigned.key;
+
+		location / { 
+			proxy_pass http://nodejs_cluster;
+			# here we are explicitly configuring nginx act as reverse proxy
+			proxy_set_header Host $host;
+			# our servers cannot directly interact with the client so we're forwarding the original headers from the nginx
+			proxy_set_header X-Real-IP $remote_addr;
+		}
+	}
+}
+# block to config the http.
